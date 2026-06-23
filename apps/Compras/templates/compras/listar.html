@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Compras — InventaPro{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-extrabold text-white flex items-center gap-2">
+            <span class="p-1.5 bg-brand-500/10 text-brand-400 rounded-lg">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            </span>
+            Registro de Compras (Ingreso de Stock)
+        </h2>
+        {% if current_user.role in ['admin', 'almacenero'] %}
+        <a href="{{ url_for('bp_compras.crear') }}"
+           class="bg-brand-500 hover:bg-brand-600 text-gray-900 font-bold px-4 py-2 rounded-lg transition duration-200 shadow-lg shadow-brand-500/10">
+            + Registrar Compra
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
+        <table class="w-full text-sm text-gray-300">
+            <thead class="bg-gray-900/50 text-brand-400 uppercase text-xs">
+                <tr>
+                    <th class="px-6 py-4 text-left font-bold">Compra ID</th>
+                    <th class="px-6 py-4 text-left font-bold">Fecha / Hora</th>
+                    <th class="px-6 py-4 text-left font-bold">Proveedor</th>
+                    <th class="px-6 py-4 text-left font-bold">Productos Comprados</th>
+                    <th class="px-6 py-4 text-left font-bold">Registrado Por</th>
+                    <th class="px-6 py-4 text-right font-bold">Total</th>
+                    {% if current_user.role in ['admin', 'almacenero'] %}
+                    <th class="px-6 py-4 text-center font-bold">Acciones</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-700/50">
+                {% for item in items %}
+                <tr class="hover:bg-gray-750/30 transition align-top">
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-400 font-semibold">#{{ item.id }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-350">{{ item.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="font-bold text-white">{{ item.proveedor.empresa }}</div>
+                        <div class="text-xs text-gray-400">{{ item.proveedor.contacto }}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="space-y-1">
+                            {% for item_p in item.items %}
+                            <div class="text-xs font-medium text-gray-300 flex items-center justify-between gap-4">
+                                <span>• {{ item_p.producto.nombre }}</span>
+                                <span class="text-gray-400 whitespace-nowrap">{{ item_p.cantidad }} u. &times; {{ "%.2f"|format(item_p.precio_unitario) }} Bs.</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-white text-xs font-semibold">{{ item.usuario.username }}</div>
+                        <div class="text-brand-400 text-[10px] uppercase font-bold">{{ item.usuario.role }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right font-extrabold text-amber-400">
+                        {{ "%.2f"|format(item.total) }} Bs.
+                    </td>
+                    {% if current_user.role in ['admin', 'almacenero'] %}
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-semibold">
+                        <form action="{{ url_for('bp_compras.eliminar', id=item.id) }}"
+                              method="POST" class="inline"
+                              onsubmit="return confirm('¿Está seguro de eliminar esta compra? Se restará la cantidad comprada del stock de los productos. Si el stock resulta negativo, se ajustará a 0.')">
+                            <button type="submit" class="text-red-400 hover:text-red-300 transition">Eliminar</button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="{% if current_user.role in ['admin', 'almacenero'] %}7{% else %}6{% endif %}" class="px-6 py-12 text-center text-gray-500">
+                        <svg class="w-12 h-12 mx-auto text-gray-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        No hay compras registradas aún.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

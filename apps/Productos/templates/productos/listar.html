@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Productos — InventaPro{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-extrabold text-white flex items-center gap-2">
+            <span class="p-1.5 bg-brand-500/10 text-brand-400 rounded-lg">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+            </span>
+            Gestión de Productos
+        </h2>
+        {% if current_user.role in ['admin', 'almacenero'] %}
+        <a href="{{ url_for('bp_productos.crear') }}"
+           class="bg-brand-500 hover:bg-brand-600 text-gray-900 font-bold px-4 py-2 rounded-lg transition duration-200 shadow-lg shadow-brand-500/10">
+            + Nuevo Producto
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
+        <table class="w-full text-sm text-gray-300">
+            <thead class="bg-gray-900/50 text-brand-400 uppercase text-xs">
+                <tr>
+                    <th class="px-6 py-4 text-left font-bold">ID</th>
+                    <th class="px-6 py-4 text-left font-bold">Producto</th>
+                    <th class="px-6 py-4 text-left font-bold">Categoría</th>
+                    <th class="px-6 py-4 text-right font-bold">Precio</th>
+                    <th class="px-6 py-4 text-center font-bold">Stock</th>
+                    <th class="px-6 py-4 text-center font-bold">Mínimo</th>
+                    <th class="px-6 py-4 text-center font-bold">Estado</th>
+                    {% if current_user.role in ['admin', 'almacenero'] %}
+                    <th class="px-6 py-4 text-center font-bold">Acciones</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-700/50">
+                {% for item in items %}
+                <tr class="hover:bg-gray-750/30 transition">
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-400 font-semibold">#{{ item.id }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="font-bold text-white">{{ item.nombre }}</div>
+                        <div class="text-xs text-gray-400 max-w-[200px] truncate">{{ item.descripcion or 'Sin descripción' }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-semibold rounded-md bg-gray-700 text-gray-350">
+                            {{ item.categoria.nombre }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right font-extrabold text-emerald-400">
+                        {{ "%.2f"|format(item.precio) }} Bs.
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center font-bold text-white">{{ item.stock }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-gray-400">{{ item.stock_minimo }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        {% if item.stock <= 0 %}
+                            <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-red-500/20 text-red-400 border border-red-500/35">
+                                Agotado
+                            </span>
+                        {% elif item.stock <= item.stock_minimo %}
+                            <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/35">
+                                Stock Bajo
+                            </span>
+                        {% else %}
+                            <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/35">
+                                En Stock
+                            </span>
+                        {% endif %}
+                    </td>
+                    {% if current_user.role in ['admin', 'almacenero'] %}
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-semibold">
+                        <a href="{{ url_for('bp_productos.editar', id=item.id) }}"
+                           class="text-brand-400 hover:text-brand-300 mr-4 transition">Editar</a>
+                        <form action="{{ url_for('bp_productos.eliminar', id=item.id) }}"
+                              method="POST" class="inline"
+                              onsubmit="return confirm('¿Está seguro de eliminar este producto?')">
+                            <button type="submit" class="text-red-400 hover:text-red-300 transition">Eliminar</button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="{% if current_user.role in ['admin', 'almacenero'] %}8{% else %}7{% endif %}" class="px-6 py-12 text-center text-gray-500">
+                        <svg class="w-12 h-12 mx-auto text-gray-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                        No hay productos registrados aún.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}Nueva Venta — InventaPro{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="flex items-center gap-3 mb-6">
+        <a href="{{ url_for('bp_ventas.listar') }}" class="text-gray-400 hover:text-white transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        </a>
+        <h2 class="text-2xl font-extrabold text-white">Registrar Nueva Venta (Salida)</h2>
+    </div>
+
+    <div class="bg-gray-800 rounded-xl border border-gray-700 p-6 sm:p-8 shadow-xl">
+        <form action="{{ url_for('bp_ventas.crear') }}" method="POST" id="venta-form" class="space-y-6">
+            <!-- Items Table -->
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-lg font-bold text-white">Detalle de Venta</h3>
+                    <button type="button" onclick="addItem()"
+                            class="bg-gray-750 hover:bg-gray-700 text-brand-400 hover:text-brand-300 font-bold px-3 py-1.5 rounded-lg border border-gray-600 transition flex items-center gap-1 text-xs">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Agregar Producto
+                    </button>
+                </div>
+
+                <div class="bg-gray-900/50 rounded-xl border border-gray-700 overflow-hidden">
+                    <table class="w-full text-sm text-gray-300">
+                        <thead class="bg-gray-900/90 text-gray-400 uppercase text-[11px] tracking-wider">
+                            <tr>
+                                <th class="px-4 py-3 text-left w-1/2">Producto</th>
+                                <th class="px-4 py-3 text-center w-1/6">Disponible</th>
+                                <th class="px-4 py-3 text-center w-1/6">Cantidad</th>
+                                <th class="px-4 py-3 text-right w-1/5">Precio Unit. (Bs.)</th>
+                                <th class="px-4 py-3 text-right w-1/5">Subtotal (Bs.)</th>
+                                <th class="px-4 py-3 text-center w-12"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="items-container" class="divide-y divide-gray-700/50">
+                            <!-- Row 1 -->
+                            <tr class="item-row align-middle">
+                                <td class="px-4 py-3">
+                                    <select name="producto_id[]" required onchange="handleProductChange(this)"
+                                            class="producto-select w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-gray-100 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                        <option value="" disabled selected>-- Seleccione Producto --</option>
+                                        {% for prod in productos %}
+                                        <option value="{{ prod.id }}" data-precio="{{ prod.precio }}" data-stock="{{ prod.stock }}">
+                                            {{ prod.nombre }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td class="px-4 py-3 text-center font-semibold text-gray-400">
+                                    <span class="stock-span">-</span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <input type="number" name="cantidad[]" min="1" required oninput="updateSubtotal(this)" placeholder="0"
+                                           class="cantidad-input w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-center text-gray-100 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                </td>
+                                <td class="px-4 py-3 text-right font-semibold text-gray-300">
+                                    <span class="precio-span">0.00</span>
+                                </td>
+                                <td class="px-4 py-3 text-right font-extrabold text-white">
+                                    <span class="subtotal-span">0.00</span>
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <button type="button" onclick="removeItem(this)" class="text-red-400 hover:text-red-300 transition">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Grand Total Display -->
+            <div class="flex justify-end pt-4 border-t border-gray-700">
+                <div class="bg-gray-900/60 rounded-lg px-6 py-4 border border-gray-750 text-right w-64 space-y-2">
+                    <p class="text-xs text-gray-400 uppercase font-semibold">Total de Venta</p>
+                    <p class="text-3xl font-extrabold text-brand-400"><span id="grand-total">0.00</span> <span class="text-lg">Bs.</span></p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-4">
+                <button type="submit"
+                        class="bg-brand-500 hover:bg-brand-600 text-gray-900 font-bold px-6 py-2.5 rounded-lg transition duration-200 shadow-md">
+                    Registrar Venta
+                </button>
+                <a href="{{ url_for('bp_ventas.listar') }}"
+                   class="bg-gray-700 hover:bg-gray-650 text-gray-200 font-bold px-6 py-2.5 rounded-lg transition duration-200 border border-gray-600">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function addItem() {
+        const container = document.getElementById('items-container');
+        const rows = container.querySelectorAll('.item-row');
+        if (rows.length === 0) return;
+
+        const newRow = rows[0].cloneNode(true);
+
+        // Clear values
+        newRow.querySelector('.producto-select').value = '';
+        newRow.querySelector('.stock-span').innerText = '-';
+        newRow.querySelector('.cantidad-input').value = '';
+        newRow.querySelector('.precio-span').innerText = '0.00';
+        newRow.querySelector('.subtotal-span').innerText = '0.00';
+
+        container.appendChild(newRow);
+    }
+
+    function removeItem(btn) {
+        const rows = document.querySelectorAll('.item-row');
+        if (rows.length > 1) {
+            btn.closest('.item-row').remove();
+            calculateGrandTotal();
+        } else {
+            alert("Debe registrar al menos un producto en la venta.");
+        }
+    }
+
+    function handleProductChange(select) {
+        const row = select.closest('.item-row');
+        const selectedOption = select.options[select.selectedIndex];
+
+        if (selectedOption.value) {
+            const price = parseFloat(selectedOption.getAttribute('data-precio')) || 0;
+            const stock = parseInt(selectedOption.getAttribute('data-stock')) || 0;
+
+            row.querySelector('.precio-span').innerText = price.toFixed(2);
+            row.querySelector('.stock-span').innerText = stock;
+            row.querySelector('.cantidad-input').max = stock;
+        } else {
+            row.querySelector('.precio-span').innerText = '0.00';
+            row.querySelector('.stock-span').innerText = '-';
+            row.querySelector('.cantidad-input').removeAttribute('max');
+        }
+
+        updateSubtotal(row.querySelector('.cantidad-input'));
+    }
+
+    function updateSubtotal(input) {
+        const row = input.closest('.item-row');
+        const select = row.querySelector('.producto-select');
+        const selectedOption = select.options[select.selectedIndex];
+
+        let price = 0;
+        let stock = 0;
+
+        if (selectedOption && selectedOption.value) {
+            price = parseFloat(selectedOption.getAttribute('data-precio')) || 0;
+            stock = parseInt(selectedOption.getAttribute('data-stock')) || 0;
+        }
+
+        let cantidad = parseInt(input.value) || 0;
+
+        // Validar stock en tiempo real en frontend
+        if (cantidad > stock) {
+            alert("No puede vender más unidades que las disponibles en stock (" + stock + ").");
+            input.value = stock;
+            cantidad = stock;
+        }
+
+        const subtotal = cantidad * price;
+        row.querySelector('.subtotal-span').innerText = subtotal.toFixed(2);
+        calculateGrandTotal();
+    }
+
+    function calculateGrandTotal() {
+        let grandTotal = 0;
+        document.querySelectorAll('.item-row').forEach(row => {
+            const select = row.querySelector('.producto-select');
+            const selectedOption = select.options[select.selectedIndex];
+            if (selectedOption && selectedOption.value) {
+                const price = parseFloat(selectedOption.getAttribute('data-precio')) || 0;
+                const cantidad = parseInt(row.querySelector('.cantidad-input').value) || 0;
+                grandTotal += cantidad * price;
+            }
+        });
+        document.getElementById('grand-total').innerText = grandTotal.toFixed(2);
+    }
+</script>
+{% endblock %}

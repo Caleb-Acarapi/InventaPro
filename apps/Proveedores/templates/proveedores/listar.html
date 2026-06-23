@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Proveedores — InventaPro{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-extrabold text-white flex items-center gap-2">
+            <span class="p-1.5 bg-brand-500/10 text-brand-400 rounded-lg">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+            </span>
+            Gestión de Proveedores
+        </h2>
+        {% if current_user.role in ['admin', 'almacenero'] %}
+        <a href="{{ url_for('bp_proveedores.crear') }}"
+           class="bg-brand-500 hover:bg-brand-600 text-gray-900 font-bold px-4 py-2 rounded-lg transition duration-200 shadow-lg shadow-brand-500/10">
+            + Nuevo Proveedor
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
+        <table class="w-full text-sm text-gray-300">
+            <thead class="bg-gray-900/50 text-brand-400 uppercase text-xs">
+                <tr>
+                    <th class="px-6 py-4 text-left font-bold">ID</th>
+                    <th class="px-6 py-4 text-left font-bold">Empresa</th>
+                    <th class="px-6 py-4 text-left font-bold">Contacto</th>
+                    <th class="px-6 py-4 text-left font-bold">Teléfono</th>
+                    <th class="px-6 py-4 text-left font-bold">Email</th>
+                    {% if current_user.role in ['admin', 'almacenero'] %}
+                    <th class="px-6 py-4 text-center font-bold">Acciones</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-700/50">
+                {% for item in items %}
+                <tr class="hover:bg-gray-750/30 transition">
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-400 font-semibold">#{{ item.id }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap font-bold text-white">{{ item.empresa }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-250">{{ item.contacto or 'Sin contacto' }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-300">{{ item.telefono or 'Sin teléfono' }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">{{ item.email or 'Sin email' }}</td>
+                    {% if current_user.role in ['admin', 'almacenero'] %}
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-semibold">
+                        <a href="{{ url_for('bp_proveedores.editar', id=item.id) }}"
+                           class="text-brand-400 hover:text-brand-300 mr-4 transition">Editar</a>
+                        <form action="{{ url_for('bp_proveedores.eliminar', id=item.id) }}"
+                              method="POST" class="inline"
+                              onsubmit="return confirm('¿Está seguro de eliminar este proveedor?')">
+                            <button type="submit" class="text-red-400 hover:text-red-300 transition">Eliminar</button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="{% if current_user.role in ['admin', 'almacenero'] %}6{% else %}5{% endif %}" class="px-6 py-12 text-center text-gray-500">
+                        <svg class="w-12 h-12 mx-auto text-gray-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        No hay proveedores registrados aún.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
