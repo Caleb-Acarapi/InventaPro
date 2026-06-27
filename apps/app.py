@@ -65,4 +65,12 @@ def create_app():
 
         db.create_all()
 
+        # Seed data automatically on first startup when the database is empty.
+        try:
+            from apps.seed import seed_data
+
+            seed_data()
+        except Exception:
+            pass
+
     return app
