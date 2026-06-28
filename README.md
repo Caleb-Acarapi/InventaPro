@@ -4,27 +4,50 @@ Aplicación web de gestión de inventario desarrollada con Flask y SQLAlchemy.
 
 ##  Inicio rápido (local)
 
-### Instalación
+### 1. Crear y activar entorno virtual (venv)
+
+```bash
+# Crear el entorno virtual
+python -m venv venv
+
+# Activar en Linux/macOS
+source venv/bin/activate
+
+# Activar en Windows
+venv\Scripts\activate
+```
+
+### 2. Instalar dependencias
+
 ```bash
 pip install -r requirements.txt
 ```
 
-### Ejecutar la aplicación
+### 3. Ejecutar la aplicación
+
 ```bash
 python run.py
 ```
 
 Abre el navegador en: http://127.0.0.1:5000
 
-### Crear datos de prueba
+### 4. (Opcional) Reiniciar datos de prueba
+
+El proyecto ya incluye datos iniciales para funcionar sin problemas. Si deseas restablecer la base de datos a su estado original, ejecuta:
+
 ```bash
 python seed.py
 ```
 
-Usuarios de prueba:
-- admin / admin123
-- almacenero / almacen123
-- vendedor / vendedor123
+> Esto eliminará los datos existentes y los reemplazará con los datos de inicialización.
+
+### Usuarios de prueba
+
+| Rol           | Usuario     | Contraseña |
+|---------------|-------------|------------|
+| Administrador | admin       | admin123   |
+| Almacenero    | almacenero  | almacen123 |
+| Vendedor      | vendedor    | vendedor123 |
 
 ## 📦 Despliegue en Render
 
