@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from apps.app import bcrypt, create_app, db
 from apps.Categorias.models import Categoria
 from apps.Compras.models import Compra, CompraItem
-from apps.models import User
+from apps.models import Bitacora, User
 from apps.Productos.models import Producto
 from apps.Proveedores.models import Proveedor
 from apps.Ventas.models import Venta, VentaItem
@@ -309,6 +309,46 @@ def seed_data():
     v10.total = sum(i.cantidad * i.precio_unitario for i in v10_items)
     db.session.commit()
 
+
+# ─── AUDIT LOG (BITACORA) ────────────────────────────
+    bitacora_entries = [
+        Bitacora(usuario_id=admin.id, accion="Crear compra",
+                 detalles=f"Compra #{c1.id} a {prov_tech.empresa} por Bs.{c1.total:.2f}", fecha=c1.fecha),
+        Bitacora(usuario_id=almacenero.id, accion="Crear compra",
+                 detalles=f"Compra #{c2.id} a {prov_textiles.empresa} por Bs.{c2.total:.2f}", fecha=c2.fecha),
+        Bitacora(usuario_id=almacenero.id, accion="Crear compra",
+                 detalles=f"Compra #{c3.id} a {prov_alimentos.empresa} por Bs.{c3.total:.2f}", fecha=c3.fecha),
+        Bitacora(usuario_id=admin.id, accion="Crear compra",
+                 detalles=f"Compra #{c4.id} a {prov_hogar.empresa} por Bs.{c4.total:.2f}", fecha=c4.fecha),
+        Bitacora(usuario_id=almacenero.id, accion="Crear compra",
+                 detalles=f"Compra #{c5.id} a {prov_deportes.empresa} por Bs.{c5.total:.2f}", fecha=c5.fecha),
+        Bitacora(usuario_id=admin.id, accion="Crear compra",
+                 detalles=f"Compra #{c6.id} a {prov_libreria.empresa} por Bs.{c6.total:.2f}", fecha=c6.fecha),
+        Bitacora(usuario_id=almacenero.id, accion="Crear compra",
+                 detalles=f"Compra #{c7.id} a {prov_tech.empresa} por Bs.{c7.total:.2f}", fecha=c7.fecha),
+        Bitacora(usuario_id=vendedor1.id, accion="Crear venta",
+                 detalles=f"Venta #{v1.id} por Bs.{v1.total:.2f}", fecha=v1.fecha),
+        Bitacora(usuario_id=vendedor2.id, accion="Crear venta",
+                 detalles=f"Venta #{v2.id} por Bs.{v2.total:.2f}", fecha=v2.fecha),
+        Bitacora(usuario_id=vendedor1.id, accion="Crear venta",
+                 detalles=f"Venta #{v3.id} por Bs.{v3.total:.2f}", fecha=v3.fecha),
+        Bitacora(usuario_id=vendedor2.id, accion="Crear venta",
+                 detalles=f"Venta #{v4.id} por Bs.{v4.total:.2f}", fecha=v4.fecha),
+        Bitacora(usuario_id=vendedor1.id, accion="Crear venta",
+                 detalles=f"Venta #{v5.id} por Bs.{v5.total:.2f}", fecha=v5.fecha),
+        Bitacora(usuario_id=vendedor2.id, accion="Crear venta",
+                 detalles=f"Venta #{v6.id} por Bs.{v6.total:.2f}", fecha=v6.fecha),
+        Bitacora(usuario_id=vendedor1.id, accion="Crear venta",
+                 detalles=f"Venta #{v7.id} por Bs.{v7.total:.2f}", fecha=v7.fecha),
+        Bitacora(usuario_id=vendedor2.id, accion="Crear venta",
+                 detalles=f"Venta #{v8.id} por Bs.{v8.total:.2f}", fecha=v8.fecha),
+        Bitacora(usuario_id=vendedor1.id, accion="Crear venta",
+                 detalles=f"Venta #{v9.id} por Bs.{v9.total:.2f}", fecha=v9.fecha),
+        Bitacora(usuario_id=vendedor2.id, accion="Crear venta",
+                 detalles=f"Venta #{v10.id} por Bs.{v10.total:.2f}", fecha=v10.fecha),
+    ]
+    db.session.add_all(bitacora_entries)
+    db.session.commit()
 
 def seed_data_command():
     app = create_app()
