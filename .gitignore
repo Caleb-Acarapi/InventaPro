@@ -29,8 +29,8 @@ instance/
 .webassets-cache
 
 # Base de datos
-*.db
-inventapro.db
+#*.db
+#inventapro.db
 
 # Variables de entorno
 .env
@@ -53,3 +53,4 @@ migrations/versions/
 
 # Otros
 pdf_text.txt
+INVENTAPRO_PLAN.md
